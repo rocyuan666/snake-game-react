@@ -12,7 +12,19 @@ const CpnContentWrap = styled.div`
     top: ${props => props.top + "px"};
     width: 10px;
     height: 10px;
+    overflow: hidden;
+    text-indent: -9999px;
     background-color: #000;
+  }
+  .food{
+    position: absolute;
+    left: ${props => props.foodLeft + "px"};
+    top: ${props => props.foodTop + "px"};
+    width: 10px;
+    height: 10px;
+    overflow: hidden;
+    text-indent: -9999px;
+    background-color: ${props => props.foodBgColor};
   }
 `;
 export default CpnContentWrap;

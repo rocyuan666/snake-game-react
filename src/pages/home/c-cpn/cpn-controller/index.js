@@ -9,7 +9,8 @@ export default class index extends PureComponent {
   render() {
     return (
       <CpnContorllerWrap>
-        <button onClick={e => { this.clickPlayGame() }}>开始</button>
+        <button className="btn-play" onClick={e => { this.clickPlayGame() }}>开始</button>
+        <p className="tips-text">提示：键盘 ↑ ↓ ← → 控制蛇方向</p>
       </CpnContorllerWrap>
     )
   }
