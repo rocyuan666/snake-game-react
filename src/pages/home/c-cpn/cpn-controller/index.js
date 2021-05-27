@@ -10,6 +10,7 @@ export default class index extends PureComponent {
     return (
       <CpnContorllerWrap>
         <button className="btn-play" onClick={e => { this.clickPlayGame() }}>开始</button>
+        <p>得分：{this.props.score}</p>
         <p className="tips-text">提示：键盘 ↑ ↓ ← → 控制蛇方向</p>
       </CpnContorllerWrap>
     )

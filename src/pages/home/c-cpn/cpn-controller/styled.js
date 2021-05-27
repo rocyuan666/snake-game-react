@@ -1,15 +1,14 @@
 import styled from "styled-components"
 
 const CpnContorllerWrap = styled.div`
-  padding: 10px 0;
+  text-align: center;
   .btn-play{
     display: block;
-    margin: 0 auto;
+    margin: 0 auto 6px;
   }
   .tips-text{
-    text-align: center;
     color: #f00;
-    padding-top: 10px;
+    padding: 6px 0;
   }
 `;
 export default CpnContorllerWrap;

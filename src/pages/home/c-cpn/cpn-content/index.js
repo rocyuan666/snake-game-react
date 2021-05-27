@@ -1,11 +1,15 @@
 import React, { PureComponent } from 'react'
 
+import utils from "../../../../utils/utils"
+
 import CpnContentWrap from "./styled"
 
 export default class index extends PureComponent {
   constructor(props) {
     super(props)
     this.state = {
+      // 蛇长度
+      snakeLength: 1,
       // 速度
       seed: 500,
       // 方向
@@ -27,6 +31,18 @@ export default class index extends PureComponent {
   }
 
   /**
+   * 初始化
+   */
+  initPlay() {
+    this.setState({
+      snakeLength: 1,
+      direction: "right",
+      top: 0,
+      left: 0
+    })
+  }
+
+  /**
    * 蛇开始移动（递归方式）
    */
   snakeMove() {
@@ -35,37 +51,38 @@ export default class index extends PureComponent {
       alert("你挂了！！！")
       return console.log("失败了")
     } else {
+      if (direction === "right") {
+        // 向右移动
+        this.setState(state => {
+          return {
+            left: state.left + 10
+          }
+        })
+      } else if (direction === "left") {
+        // 向左移动
+        this.setState(state => {
+          return {
+            left: state.left - 10
+          }
+        })
+      } else if (direction === "bottom") {
+        // 向下移动
+        this.setState(state => {
+          return {
+            top: state.top + 10
+          }
+        })
+      } else if (direction === "top") {
+        // 向上移动
+        this.setState(state => {
+          return {
+            top: state.top - 10
+          }
+        })
+      } else { }
       setTimeout(_ => {
-        if (direction === "right") {
-          // 向右移动
-          this.setState(state => {
-            return {
-              left: state.left + 10
-            }
-          })
-        } else if (direction === "left") {
-          // 向左移动
-          this.setState(state => {
-            return {
-              left: state.left - 10
-            }
-          })
-        } else if (direction === "bottom") {
-          // 向下移动
-          this.setState(state => {
-            return {
-              top: state.top + 10
-            }
-          })
-        } else if (direction === "top") {
-          // 向上移动
-          this.setState(state => {
-            return {
-              top: state.top - 10
-            }
-          })
-        } else { }
-        this.snakeMove()
+        this.eatFood();
+        this.snakeMove();
       }, seed)
     }
   }
@@ -96,18 +113,21 @@ export default class index extends PureComponent {
       foodTop: NewFoodTop
     })
     // 随机颜色
-    function randomRgbaColor() { //随机生成RGBA颜色
-      var r = Math.floor(Math.random() * 200); //随机生成256以内r值
-      var g = Math.floor(Math.random() * 200); //随机生成256以内g值
-      var b = Math.floor(Math.random() * 200); //随机生成256以内b值
-      // var alpha = Math.random(); //随机生成1以内a值
-      var alpha = 0.8;
-      return `rgb(${r},${g},${b},${alpha})`; //返回rgba(r,g,b,a)格式颜色
-    }
-    let bgColor = randomRgbaColor()
+    let bgColor = utils.randomRgbColor(200, 200, 200)
     this.setState({
       foodBgColor: bgColor
     })
+  }
+
+  /**
+   * 吃到食物（加分）
+   */
+  eatFood() {
+    const { top, left, foodTop, foodLeft } = this.state;
+    if (top === foodTop && left === foodLeft) {
+      this.props.handleScore();
+      this.randomFood();
+    }
   }
 
   /**
