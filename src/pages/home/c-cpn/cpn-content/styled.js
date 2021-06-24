@@ -8,8 +8,6 @@ const CpnContentWrap = styled.div`
   position: relative;
   .snake-item{
     position: absolute;
-    left: ${props => props.left + "px"};
-    top: ${props => props.top + "px"};
     width: 10px;
     height: 10px;
     overflow: hidden;
