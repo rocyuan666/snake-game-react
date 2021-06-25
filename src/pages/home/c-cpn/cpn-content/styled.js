@@ -13,6 +13,9 @@ const CpnContentWrap = styled.div`
     overflow: hidden;
     text-indent: -9999px;
     background-color: #000;
+		&.red{
+			background-color: #f00;
+		}
   }
   .food{
     position: absolute;

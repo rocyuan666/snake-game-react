@@ -11,7 +11,7 @@ export default class index extends PureComponent {
 			// 蛇长度
 			snakeLength: 1,
 			// 速度
-			seed: 500,
+			seed: 200,
 			// 方向
 			direction: "right",
 			// 蛇位置 数组第一位是蛇头位置
@@ -256,7 +256,7 @@ export default class index extends PureComponent {
 					snakePositions.map((snakeItem, snakeIndex) => {
 						return (
 							<div
-								className="snake-item"
+								className={"snake-item " + (snakeIndex === snakePositions.length-1 ? "red" : "")}
 								key={snakeIndex}
 								style={{
 									top: snakeItem.top,
