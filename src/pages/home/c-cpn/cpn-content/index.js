@@ -33,6 +33,8 @@ export default class index extends PureComponent {
 		this.randomFood()
 		// 监听键盘-控制蛇
 		this.snakeContorl()
+		// 清除计时器
+		clearInterval(this.state.timeInterval)
 		// 初始化状态
 		this.setState({
 			direction: "right",
