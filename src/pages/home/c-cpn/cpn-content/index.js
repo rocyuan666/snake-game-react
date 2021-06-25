@@ -48,18 +48,35 @@ export default class index extends PureComponent {
 	 * 蛇开始移动（递归方式）
 	 */
 	snakeMove() {
-		const { seed, direction } = this.state;
+		const { snakePositions, seed, direction } = this.state;
 		if (this.snakeKill()) {
-			alert("你挂了！！！")
+			this.gameOver()
 			return console.log("失败了")
 		} else {
+			/*
+			 继续移动 思路：
+			 先要清除  数组的末尾是蛇头
+			 1（错误）. 开始想的是移动整条蛇，此思路走不通
+			 2（正确）. 用复制一份蛇的尾巴通过计算位置后放在蛇头的前面（成为新的蛇头），然后删除旧的蛇尾，这就向前走了一步（重复）
+			*/
+
+			// 记录目前蛇头位置
+			const oldTop = snakePositions[snakePositions.length - 1].top
+			const oldLeft = snakePositions[snakePositions.length - 1].left
+
 			if (direction === "right") {
 				// 向右移动
 				this.setState(state => {
-					const newSnakePositions = state.snakePositions.map((item) => {
-						item.left += 10
-						return item
-					})
+					const newSnakePositions = [...state.snakePositions]
+					// 计算新的蛇头位置
+					const newSnake = {
+						top: oldTop,
+						left: oldLeft + 10
+					}
+					// 新的蛇头放入数组
+					newSnakePositions.push(newSnake)
+					// 删除之前的蛇尾
+					newSnakePositions.shift()
 					return {
 						snakePositions: newSnakePositions
 					}
@@ -67,10 +84,13 @@ export default class index extends PureComponent {
 			} else if (direction === "left") {
 				// 向左移动
 				this.setState(state => {
-					const newSnakePositions = state.snakePositions.map((item) => {
-						item.left -= 10
-						return item
-					})
+					const newSnakePositions = [...state.snakePositions]
+					const newSnake = {
+						top: oldTop,
+						left: oldLeft - 10
+					}
+					newSnakePositions.push(newSnake)
+					newSnakePositions.shift()
 					return {
 						snakePositions: newSnakePositions
 					}
@@ -78,10 +98,13 @@ export default class index extends PureComponent {
 			} else if (direction === "bottom") {
 				// 向下移动
 				this.setState(state => {
-					const newSnakePositions = state.snakePositions.map((item) => {
-						item.top += 10
-						return item
-					})
+					const newSnakePositions = [...state.snakePositions]
+					const newSnake = {
+						top: oldTop + 10,
+						left: oldLeft
+					}
+					newSnakePositions.push(newSnake)
+					newSnakePositions.shift()
 					return {
 						snakePositions: newSnakePositions
 					}
@@ -89,10 +112,13 @@ export default class index extends PureComponent {
 			} else if (direction === "top") {
 				// 向上移动
 				this.setState(state => {
-					const newSnakePositions = state.snakePositions.map((item) => {
-						item.top -= 10
-						return item
-					})
+					const newSnakePositions = [...state.snakePositions]
+					const newSnake = {
+						top: oldTop - 10,
+						left: oldLeft
+					}
+					newSnakePositions.push(newSnake)
+					newSnakePositions.shift()
 					return {
 						snakePositions: newSnakePositions
 					}
@@ -102,20 +128,6 @@ export default class index extends PureComponent {
 				this.eatFood();
 				this.snakeMove();
 			}, seed)
-		}
-	}
-
-	/**
-	 * 蛇死亡判断（碰壁）
-	 */
-	snakeKill() {
-		const { snakePositions } = this.state;
-		if (snakePositions[0].top < 0 || snakePositions[0].top > 490 || snakePositions[0].left < 0 || snakePositions[0].left > 490) {
-			// 蛇死了
-			return true;
-		} else {
-			// 蛇活着
-			return false;
 		}
 	}
 
@@ -142,7 +154,7 @@ export default class index extends PureComponent {
 	 */
 	eatFood() {
 		const { snakePositions, foodTop, foodLeft } = this.state;
-		if (snakePositions[0].top === foodTop && snakePositions[0].left === foodLeft) {
+		if (snakePositions[snakePositions.length - 1].top === foodTop && snakePositions[snakePositions.length - 1].left === foodLeft) {
 			this.props.handleScore();
 			this.handleSnakeLength()
 			this.randomFood();
@@ -150,36 +162,57 @@ export default class index extends PureComponent {
 	}
 
 	/**
-	 * 处理蛇身长长（有问题）
+	 * 处理蛇身长长
+	 * 思路：吃一截食物，从蛇尾处（数组0位）加一截
 	 */
 	handleSnakeLength() {
 		const { snakePositions, direction } = this.state;
 		const snakeObj = {}
-		snakePositions.forEach((item, index) => {
-			if (index === snakePositions.length - 1) {
-				// 需要按照方向加值（不然会造成蛇长成畸形！！！）
-				if (direction === "right") {
-					snakeObj.top = item.top
-					snakeObj.left = item.left - 10
-				} else if (direction === "left") {
-					snakeObj.top = item.top
-					snakeObj.left = item.left + 10
-				} else if (direction === "bottom") {
-					snakeObj.top = item.top - 10
-					snakeObj.left = item.left
-				} else if (direction === "top") {
-					snakeObj.top = item.top + 10
-					snakeObj.left = item.left
-				} else { }
-			}
-		})
+		// 记录蛇尾位置
+		const lastTop = snakePositions[0].top
+		const lastLeft = snakePositions[0].left
+		// 需要按照方向加值（不然会造成蛇长成畸形！！！）
+		if (direction === "right") {
+			snakeObj.top = lastTop
+			snakeObj.left = lastLeft - 10
+		} else if (direction === "left") {
+			snakeObj.top = lastTop
+			snakeObj.left = lastLeft + 10
+		} else if (direction === "bottom") {
+			snakeObj.top = lastTop - 10
+			snakeObj.left = lastLeft
+		} else if (direction === "top") {
+			snakeObj.top = lastTop + 10
+			snakeObj.left = lastLeft
+		} else { }
 		this.setState(state => {
 			const newSnakePositions = [...state.snakePositions]
-			newSnakePositions.push(snakeObj)
+			newSnakePositions.unshift(snakeObj)
 			return {
 				snakePositions: newSnakePositions
 			}
 		})
+	}
+
+	/**
+	 * 蛇死亡判断（碰壁）
+	 */
+	snakeKill() {
+		const { snakePositions } = this.state;
+		if (snakePositions[snakePositions.length - 1].top < 0 || snakePositions[snakePositions.length - 1].top > 490 || snakePositions[snakePositions.length - 1].left < 0 || snakePositions[snakePositions.length - 1].left > 490) {
+			// 蛇死了
+			return true;
+		} else {
+			// 蛇活着
+			return false;
+		}
+	}
+
+	/**
+	 * 失败了
+	 */
+	gameOver() {
+		alert("游戏结束")
 	}
 
 	/**
