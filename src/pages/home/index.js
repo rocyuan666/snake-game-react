@@ -17,8 +17,8 @@ export default class index extends PureComponent {
    * 开始游戏
    */
   playGame() {
-    this.refContent.current.initPlay()
-    this.refContent.current.snakeMove()
+    this.refContent.current.initGame()
+    this.refContent.current.playGame()
   }
   
   /**

@@ -8,35 +8,33 @@ export default class index extends PureComponent {
 	constructor(props) {
 		super(props)
 		this.state = {
-			// 蛇长度
-			snakeLength: 1,
 			// 速度
 			seed: 200,
 			// 方向
 			direction: "right",
-			// 蛇位置 数组第一位是蛇头位置
+			// 蛇位置 数组末尾是蛇头位置
 			snakePositions: [
 				{ top: 0, left: 0, }
 			],
 			// 食物位置 & 颜色
 			foodTop: -9999,
 			foodLeft: -9999,
-			foodBgColor: "#000"
+			foodBgColor: "#000",
+			// 计时器
+			timeInterval: null
 		}
-	}
-
-	// 一开始展示食物
-	componentDidMount() {
-		this.randomFood()
-		this.snakeContorl()
 	}
 
 	/**
 	 * 初始化
 	 */
-	initPlay() {
+	initGame() {
+		// 生成食物
+		this.randomFood()
+		// 监听键盘-控制蛇
+		this.snakeContorl()
+		// 初始化状态
 		this.setState({
-			snakeLength: 1,
 			direction: "right",
 			snakePositions: [
 				{ top: 0, left: 0, }
@@ -45,90 +43,98 @@ export default class index extends PureComponent {
 	}
 
 	/**
-	 * 蛇开始移动（递归方式）
+	 * 开始游戏
 	 */
-	snakeMove() {
-		const { snakePositions, seed, direction } = this.state;
-		if (this.snakeKill()) {
-			this.gameOver()
-			return console.log("失败了")
-		} else {
-			/*
-			 继续移动 思路：
-			 先要清除  数组的末尾是蛇头
-			 1（错误）. 开始想的是移动整条蛇，此思路走不通
-			 2（正确）. 用复制一份蛇的尾巴通过计算位置后放在蛇头的前面（成为新的蛇头），然后删除旧的蛇尾，这就向前走了一步（重复）
-			*/
-
-			// 记录目前蛇头位置
-			const oldTop = snakePositions[snakePositions.length - 1].top
-			const oldLeft = snakePositions[snakePositions.length - 1].left
-
-			if (direction === "right") {
-				// 向右移动
-				this.setState(state => {
-					const newSnakePositions = [...state.snakePositions]
-					// 计算新的蛇头位置
-					const newSnake = {
-						top: oldTop,
-						left: oldLeft + 10
-					}
-					// 新的蛇头放入数组
-					newSnakePositions.push(newSnake)
-					// 删除之前的蛇尾
-					newSnakePositions.shift()
-					return {
-						snakePositions: newSnakePositions
-					}
-				})
-			} else if (direction === "left") {
-				// 向左移动
-				this.setState(state => {
-					const newSnakePositions = [...state.snakePositions]
-					const newSnake = {
-						top: oldTop,
-						left: oldLeft - 10
-					}
-					newSnakePositions.push(newSnake)
-					newSnakePositions.shift()
-					return {
-						snakePositions: newSnakePositions
-					}
-				})
-			} else if (direction === "bottom") {
-				// 向下移动
-				this.setState(state => {
-					const newSnakePositions = [...state.snakePositions]
-					const newSnake = {
-						top: oldTop + 10,
-						left: oldLeft
-					}
-					newSnakePositions.push(newSnake)
-					newSnakePositions.shift()
-					return {
-						snakePositions: newSnakePositions
-					}
-				})
-			} else if (direction === "top") {
-				// 向上移动
-				this.setState(state => {
-					const newSnakePositions = [...state.snakePositions]
-					const newSnake = {
-						top: oldTop - 10,
-						left: oldLeft
-					}
-					newSnakePositions.push(newSnake)
-					newSnakePositions.shift()
-					return {
-						snakePositions: newSnakePositions
-					}
-				})
-			} else { }
-			setTimeout(_ => {
+	playGame() {
+		const { seed } = this.state;
+		const createTimeInterval = setInterval(_ => {
+			if (this.snakeKill()) {
+				// 游戏结束
+				this.gameOver()
+			} else {
+				// 游戏正常
 				this.eatFood();
 				this.snakeMove();
-			}, seed)
-		}
+			}
+		}, seed)
+		this.setState({
+			timeInterval: createTimeInterval
+		})
+	}
+
+	/**
+	 * 蛇移动
+	 * 先要清除  数组的末尾是蛇头
+	 * 思路：
+	 * 1（错误）开始想的是移动整条蛇，此思路走不通
+	 * 2（正确）用复制一份蛇的尾巴通过计算位置后放在蛇头的前面（成为新的蛇头），然后删除旧的蛇尾，这就向前走了一步（重复）
+	 */
+	snakeMove() {
+		const { snakePositions, direction } = this.state;
+		// 记录目前蛇头位置
+		const oldTop = snakePositions[snakePositions.length - 1].top
+		const oldLeft = snakePositions[snakePositions.length - 1].left
+
+		if (direction === "right") {
+			// 向右移动
+			this.setState(state => {
+				const newSnakePositions = [...state.snakePositions]
+				// 计算新的蛇头位置
+				const newSnake = {
+					top: oldTop,
+					left: oldLeft + 10
+				}
+				// 新的蛇头放入数组
+				newSnakePositions.push(newSnake)
+				// 删除之前的蛇尾
+				newSnakePositions.shift()
+				return {
+					snakePositions: newSnakePositions
+				}
+			})
+		} else if (direction === "left") {
+			// 向左移动
+			this.setState(state => {
+				const newSnakePositions = [...state.snakePositions]
+				const newSnake = {
+					top: oldTop,
+					left: oldLeft - 10
+				}
+				newSnakePositions.push(newSnake)
+				newSnakePositions.shift()
+				return {
+					snakePositions: newSnakePositions
+				}
+			})
+		} else if (direction === "bottom") {
+			// 向下移动
+			this.setState(state => {
+				const newSnakePositions = [...state.snakePositions]
+				const newSnake = {
+					top: oldTop + 10,
+					left: oldLeft
+				}
+				newSnakePositions.push(newSnake)
+				newSnakePositions.shift()
+				return {
+					snakePositions: newSnakePositions
+				}
+			})
+		} else if (direction === "top") {
+			// 向上移动
+			this.setState(state => {
+				const newSnakePositions = [...state.snakePositions]
+				const newSnake = {
+					top: oldTop - 10,
+					left: oldLeft
+				}
+				newSnakePositions.push(newSnake)
+				newSnakePositions.shift()
+				return {
+					snakePositions: newSnakePositions
+				}
+			})
+		} else { }
 	}
 
 	/**
@@ -213,34 +219,37 @@ export default class index extends PureComponent {
 	 */
 	gameOver() {
 		alert("游戏结束")
+		clearInterval(this.state.timeInterval)
 	}
 
 	/**
 	 * 键盘控制蛇方向
+	 * ↑ 38
+	 * ↓ 40
+	 * ← 37
+	 * → 39
 	 */
 	snakeContorl() {
 		window.onkeydown = e => {
-			if (e.keyCode === 38) {
-				// 上
-				this.setState({
-					direction: "top"
-				})
-			} else if (e.keyCode === 40) {
-				// 下
-				this.setState({
-					direction: "bottom"
-				})
-			} else if (e.keyCode === 37) {
-				// 左
-				this.setState({
-					direction: "left"
-				})
-			} else if (e.keyCode === 39) {
-				// 右
-				this.setState({
-					direction: "right"
-				})
-			}
+			this.setState(state => {
+				let newDirection = state.direction;
+				if (e.keyCode === 38 && state.direction !== "bottom") {
+					// 上
+					newDirection = "top"
+				} else if (e.keyCode === 40 && state.direction !== "top") {
+					// 下
+					newDirection = "bottom"
+				} else if (e.keyCode === 37 && state.direction !== "right") {
+					// 左
+					newDirection = "left"
+				} else if (e.keyCode === 39 && state.direction !== "left") {
+					// 右
+					newDirection = "right"
+				}
+				return {
+					direction: newDirection
+				}
+			})
 		}
 	}
 
@@ -256,7 +265,7 @@ export default class index extends PureComponent {
 					snakePositions.map((snakeItem, snakeIndex) => {
 						return (
 							<div
-								className={"snake-item " + (snakeIndex === snakePositions.length-1 ? "red" : "")}
+								className={"snake-item " + (snakeIndex === snakePositions.length - 1 ? "red" : "")}
 								key={snakeIndex}
 								style={{
 									top: snakeItem.top,
