@@ -203,14 +203,25 @@ export default class index extends PureComponent {
 	}
 
 	/**
-	 * 蛇死亡判断（碰壁）
+	 * 蛇死亡判断（碰壁、吃自己）
 	 */
 	snakeKill() {
 		const { snakePositions } = this.state;
-		if (snakePositions[snakePositions.length - 1].top < 0 || snakePositions[snakePositions.length - 1].top > 490 || snakePositions[snakePositions.length - 1].left < 0 || snakePositions[snakePositions.length - 1].left > 490) {
-			// 蛇死了
+		const snakeHeaderTop = snakePositions[snakePositions.length - 1].top;
+		const snakeHeaderLeft = snakePositions[snakePositions.length - 1].left;
+		if (snakeHeaderTop < 0 || snakeHeaderTop > 490 || snakeHeaderLeft < 0 || snakeHeaderLeft > 490) {
+			// 蛇死了(碰壁)
 			return true;
 		} else {
+			const newSnakePositions = [...snakePositions]
+			// 删除掉蛇头（蛇头必定会和蛇头一样，所以除掉蛇头作对比）
+			newSnakePositions.pop()
+			for (let i in newSnakePositions) {
+				if (snakeHeaderTop === newSnakePositions[i].top && snakeHeaderLeft === newSnakePositions[i].left) {
+					// 蛇死了（吃自己）
+					return true;
+				}
+			}
 			// 蛇活着
 			return false;
 		}
